@@ -161,6 +161,7 @@ int main() {
         printf("Which task do you want to complete:\n");
         int task_number_to_complete;
         scanf("%d", &task_number_to_complete);
+        clear_scanf();
         index = find_index_of_element(tasks, task_number_to_complete, MAX_TASKS);
         tasks[index].completed = 1;
         update_file();
@@ -170,6 +171,7 @@ int main() {
         printf("Which task do you want to remove:\n");
         int task_number_to_delete;
         scanf("%d", &task_number_to_delete);
+        clear_scanf();
         index = find_index_of_element(tasks, task_number_to_delete, MAX_TASKS);
         printf("task to remove: %d. %s [%d]\n", tasks[index].id, tasks[index].description, tasks[index].completed);
         if (index != -1) {
