@@ -12,6 +12,7 @@ typedef struct {
 
 Task tasks[NUM_TASK];
 int num_tasks = 0;
+int last_task_id = 0;
 
 char *get_field(char *line, int num) {
     char *tok;
@@ -20,6 +21,20 @@ char *get_field(char *line, int num) {
             return tok;
     }
     return NULL;
+}
+
+void remove_task_from_array(Task array[], int index, int size) {
+    for (int i = index; i < size - 1; i++) {
+        array[i] = array[i + 1];
+    }
+    
+}
+
+int find_index_of_element(Task array[], int id, int size) {
+    for (int i = 0; i < size - 1; i++) {
+        if (array[i].id == id) return i;
+    }
+    return -1;
 }
 
 int update_file() {
@@ -33,7 +48,10 @@ int update_file() {
     fp = fopen("to_do_list.csv", "a");
     for (int i = 0; i < num_tasks; i++) {
         // printf("%d. %s [%d]\n", tasks[i].id, tasks[i].description, tasks[i].completed);
-        fprintf(fp, "%d,%s,%d\n", tasks[i].id, tasks[i].description, tasks[i].completed);
+        if (tasks[i].id && tasks[i].description) {
+            fprintf(fp, "%d,%s,%d\n", tasks[i].id, tasks[i].description, tasks[i].completed);
+        }
+        
     }
     fclose(fp);
 }
@@ -55,7 +73,7 @@ int read_file() {
         return -1;
     }
 
-    printf("Current to-do list:\n");
+    printf("Current to-do list:\n\n");
     num_tasks = 0;
     while (fgets(line, MAX_SIZE, fp)) {
         line[strcspn(line, "\n")] = '\0';
@@ -66,21 +84,21 @@ int read_file() {
         // Use the tmp variable to get the fields
         char *field = get_field(tmp, 1);
         if (field) task.id = atoi(field);
-
+        last_task_id = task.id;
         free(tmp);
         tmp = strdup(line);
 
+
         field = get_field(tmp, 2);
         if (field) strncpy(task.description, field, sizeof(task.description) - 1);
-
         free(tmp);
         tmp = strdup(line);
 
         field = get_field(tmp, 3);
         if (field) task.completed = atoi(field);
+        free(tmp);
 
         tasks[num_tasks] = task;
-        free(tmp); // Free the duplicated line
         num_tasks++;
 
         // Ensure num_tasks doesn't exceed the array size
@@ -116,33 +134,52 @@ void clear_scanf() {
 }
 
 int main() {
+    int index;
     read_file();
 
-    printf("Add a new task [1]   Complete a task [2]   Delete a task [3]\n");
+    printf("\nAdd a new task [1]  |  Complete a task [2]  |  Delete a task [3]\n");
     int choice;
     scanf("%d", &choice);
     clear_scanf();
 
-    if (choice == 1) {
+    switch (choice) {
+    case 1:
         printf("Write here the new task:\n");
         char new_task[MAX_SIZE];
         fgets(new_task, sizeof(new_task), stdin);
         new_task[strcspn(new_task, "\n")] = 0;
         Task task;
-        num_tasks++;
-        task.id = num_tasks;
+        last_task_id++;
+        task.id = last_task_id;
         strncpy(task.description, new_task, 250);
         task.description[250 -1] = '\0';
         task.completed = 0;
         create_task(task);
         read_file();
-    } else if (choice == 2){
+        break;
+    case 2:
         printf("Which task do you want to complete:\n");
-        int task_number;
-        scanf("%d", &task_number);
-        tasks[task_number - 1].completed = 1;
+        int task_number_to_complete;
+        scanf("%d", &task_number_to_complete);
+        index = find_index_of_element(tasks, task_number_to_complete, NUM_TASK);
+        tasks[index].completed = 1;
         update_file();
         read_file();
+        break;
+    case 3:
+        printf("Which task do you want to remove:\n");
+        int task_number_to_delete;
+        scanf("%d", &task_number_to_delete);
+        printf("task to remove: %d. %s [%d]\n", tasks[task_number_to_delete].id, tasks[task_number_to_delete].description, tasks[task_number_to_delete].completed);
+        index = find_index_of_element(tasks, task_number_to_delete, NUM_TASK);
+        if (index) {
+            remove_task_from_array(tasks, index, NUM_TASK);
+            update_file();
+            read_file();
+        }
+        break;
+    default:
+        break;
     }
     
     return 0;
