@@ -137,7 +137,7 @@ int main() {
     int index;
     read_file();
 
-    printf("\nAdd a new task [1]  |  Complete a task [2]  |  Delete a task [3]\n");
+    printf("\nAdd a new task [1]  |  Complete a task [2]  |  Delete a task [3]  |  Delete all completed tasks [4]\n");
     int choice;
     scanf("%d", &choice);
     clear_scanf();
@@ -148,7 +148,7 @@ int main() {
         char new_task[MAX_SIZE];
         fgets(new_task, sizeof(new_task), stdin);
         new_task[strcspn(new_task, "\n")] = 0;
-        Task task;
+        Task task = {0};
         last_task_id++;
         task.id = last_task_id;
         strncpy(task.description, new_task, 250);
