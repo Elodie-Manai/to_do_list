@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define NUM_TASK 100
+#define MAX_TASKS 100
 #define MAX_SIZE 250
 
 typedef struct {
@@ -10,7 +10,7 @@ typedef struct {
     int completed;
 } Task;
 
-Task tasks[NUM_TASK];
+Task tasks[MAX_TASKS];
 int num_tasks = 0;
 int last_task_id = 0;
 
@@ -161,7 +161,7 @@ int main() {
         printf("Which task do you want to complete:\n");
         int task_number_to_complete;
         scanf("%d", &task_number_to_complete);
-        index = find_index_of_element(tasks, task_number_to_complete, NUM_TASK);
+        index = find_index_of_element(tasks, task_number_to_complete, MAX_TASKS);
         tasks[index].completed = 1;
         update_file();
         read_file();
@@ -170,13 +170,22 @@ int main() {
         printf("Which task do you want to remove:\n");
         int task_number_to_delete;
         scanf("%d", &task_number_to_delete);
-        printf("task to remove: %d. %s [%d]\n", tasks[task_number_to_delete].id, tasks[task_number_to_delete].description, tasks[task_number_to_delete].completed);
-        index = find_index_of_element(tasks, task_number_to_delete, NUM_TASK);
-        if (index) {
-            remove_task_from_array(tasks, index, NUM_TASK);
+        index = find_index_of_element(tasks, task_number_to_delete, MAX_TASKS);
+        printf("task to remove: %d. %s [%d]\n", tasks[index].id, tasks[index].description, tasks[index].completed);
+        if (index != -1) {
+            remove_task_from_array(tasks, index, MAX_TASKS);
             update_file();
             read_file();
         }
+        break;
+    case 4:
+        for (int i = 0; i < num_tasks; i++){
+            if (tasks[i].completed) {
+                remove_task_from_array(tasks, i, MAX_TASKS);
+            }
+        }
+        update_file();
+        read_file();
         break;
     default:
         break;
